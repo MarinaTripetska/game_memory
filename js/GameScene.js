@@ -6,6 +6,12 @@ class GameScene extends Phaser.Scene {
     //1.Loading elements
     this.load.image("bg", "../assets/sprites/background.png");
     this.load.image("card", "../assets/sprites/card.png");
+
+    this.load.image("card1", "../assets/sprites/card1.png");
+    this.load.image("card2", "../assets/sprites/card2.png");
+    this.load.image("card3", "../assets/sprites/card3.png");
+    this.load.image("card4", "../assets/sprites/card4.png");
+    this.load.image("card5", "../assets/sprites/card5.png");
   }
 
   create() {
@@ -30,20 +36,30 @@ class GameScene extends Phaser.Scene {
     //add cards:
     this.cards = [];
     const positions = this.getCardPositions();
+    //for shufle cards on random positions:
+    Phaser.Utils.Array.Shuffle(positions);
 
-    for (let pos of positions) {
-      this.cards.push(new Card(this, pos));
-    }
-    // for (let value of config.cards) {
-    //   console.log(value);
+    // for (let pos of positions) {
+    // this.cards.push(new Card(this, pos));
+    //or easier adding:
+    //this.add.sprite(pos.x, pos.y, 'card').setOrigin(0,0)
     // }
+
+    //adding cards with images * 2 = 10 cards
+    config.cardsId.forEach((id) => {
+      for (let i = 0; i < 2; i += 1) {
+        this.cards.push(new Card(this, id, positions.pop()));
+      }
+    });
   }
 
   getCardPositions() {
     const positions = [];
+
     const cardTexture = this.textures.get("card").getSourceImage();
     const cardWidth = cardTexture.width + 4;
     const cardHeight = cardTexture.height + 4;
+
     const ofsetX = (this.sys.game.config.width - cardWidth * config.cols) / 2;
     const ofsetY = (this.sys.game.config.height - cardHeight * config.rows) / 2;
 
