@@ -2,11 +2,11 @@ class GameScene extends Phaser.Scene {
   constructor() {
     super("Game");
   }
+
   preload() {
     //1.Loading elements
     this.load.image("bg", "./assets/sprites/background.png");
     this.load.image("card", "./assets/sprites/card.png");
-
     this.load.image("card1", "./assets/sprites/card1.png");
     this.load.image("card2", "./assets/sprites/card2.png");
     this.load.image("card3", "./assets/sprites/card3.png");
@@ -17,6 +17,7 @@ class GameScene extends Phaser.Scene {
   create() {
     this.createBackground();
     this.createCard();
+    this.openedCard = null;
   }
 
   createBackground() {
@@ -51,6 +52,33 @@ class GameScene extends Phaser.Scene {
         this.cards.push(new Card(this, id, positions.pop()));
       }
     });
+
+    this.input.on("gameobjectdown", this.onCardClicked, this);
+  }
+
+  onCardClicked(pointer, card) {
+    //if taped card was already opened:
+    if (card.opened) {
+      return false;
+    }
+
+    //if taped card in not opened
+    if (this.openedCard) {
+      //if we have opened card
+      console.log(this.openedCard.id);
+      if (this.openedCard.id === card.id) {
+        //if cards the same - remember it
+        this.openedCard = null;
+      } else {
+        //if cards not the same - close cards
+        this.openedCard.close();
+        this.openedCard = card;
+      }
+    } else {
+      //card not opened
+      this.openedCard = card;
+    }
+    card.open();
   }
 
   getCardPositions() {
