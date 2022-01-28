@@ -17,7 +17,23 @@ class GameScene extends Phaser.Scene {
   create() {
     this.createBackground();
     this.createCard();
+    this.start();
+  }
+
+  start() {
     this.openedCard = null;
+    this.openedCardsCount = 0;
+    this.initCards();
+  }
+
+  initCards() {
+    const positions = this.getCardPositions();
+
+    this.cards.forEach((card) => {
+      const position = positions.pop();
+      card.close();
+      card.setPosition(position.x, position.y);
+    });
   }
 
   createBackground() {
@@ -36,20 +52,11 @@ class GameScene extends Phaser.Scene {
   createCard() {
     //add cards:
     this.cards = [];
-    const positions = this.getCardPositions();
-    //for shufle cards on random positions:
-    Phaser.Utils.Array.Shuffle(positions);
-
-    // for (let pos of positions) {
-    // this.cards.push(new Card(this, pos));
-    //or easier adding:
-    //this.add.sprite(pos.x, pos.y, 'card').setOrigin(0,0)
-    // }
 
     //adding cards with images * 2 = 10 cards
     config.cardsId.forEach((id) => {
       for (let i = 0; i < 2; i += 1) {
-        this.cards.push(new Card(this, id, positions.pop()));
+        this.cards.push(new Card(this, id));
       }
     });
 
@@ -61,14 +68,14 @@ class GameScene extends Phaser.Scene {
     if (card.opened) {
       return false;
     }
-
     //if taped card in not opened
     if (this.openedCard) {
-      //if we have opened card
-      console.log(this.openedCard.id);
+      //if we have already opened card:
       if (this.openedCard.id === card.id) {
         //if cards the same - remember it
+        //and don't cloth both of them
         this.openedCard = null;
+        this.openedCardsCount += 1;
       } else {
         //if cards not the same - close cards
         this.openedCard.close();
@@ -78,7 +85,12 @@ class GameScene extends Phaser.Scene {
       //card not opened
       this.openedCard = card;
     }
+
     card.open();
+    //we we have opened all card's couple
+    if (this.openedCardsCount === this.cards.length / 2) {
+      this.start();
+    }
   }
 
   getCardPositions() {
@@ -99,7 +111,7 @@ class GameScene extends Phaser.Scene {
         });
       }
     }
-
-    return positions;
+    //for shufle cards on random positions:
+    return Phaser.Utils.Array.Shuffle(positions);
   }
 }
